@@ -3,7 +3,11 @@
 """ REST API for interacting with the recipe database """
 
 from flask import Flask
+from flask import request
 import json
+
+
+from backend.recipe import verify_recipe_json
 
 app = Flask(__name__)
 
@@ -26,9 +30,24 @@ def get_recipe(recipe_id):
     return blob 
 
 
-@app.route("/recipe/create")
+@app.route("/recipe/create", methods = ["POST"])
 def create_recipe():
-    return "Recipe!"
+    """Receive a JSON blob and use it to create a new recipe entry in the database"""
+    content_type = request.headers.get("Content-Type")
+    print(content_type)
+    if content_type != "application/json":
+        # TODO: return an error code here
+        return json.JSONEncoder().encode({"ERROR": "Must receive JSON"})
+
+    # TODO: verify the provided JSON
+    recipe_json = request.json
+    if not verify_recipe_json(recipe_json):
+        # TODO: return an error code here
+        return json.JSONEncoder().encode({"ERROR": "JSON Doesn't contain the expected data"})
+    # TODO: use the provided JSON to create a recipe database entry
+    response_json = json.JSONEncoder().encode({"recipe_id": "1234"})
+
+    return response_json
 
 
 @app.route("/recipe/delete")
@@ -41,4 +60,4 @@ def update_recipe():
     return "Recipe!"
 
 if __name__ == "__main__":
-    app.run()
+    app.run(port=5000)
