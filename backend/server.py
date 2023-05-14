@@ -7,7 +7,7 @@ from flask import request
 import json
 
 
-from backend.recipe import verify_recipe_json
+from backend.recipe import verify_recipe_json, create_new_recipe
 
 app = Flask(__name__)
 
@@ -39,13 +39,14 @@ def create_recipe():
         # TODO: return an error code here
         return json.JSONEncoder().encode({"ERROR": "Must receive JSON"})
 
-    # TODO: verify the provided JSON
     recipe_json = request.json
     if not verify_recipe_json(recipe_json):
         # TODO: return an error code here
         return json.JSONEncoder().encode({"ERROR": "JSON Doesn't contain the expected data"})
+
     # TODO: use the provided JSON to create a recipe database entry
-    response_json = json.JSONEncoder().encode({"recipe_id": "1234"})
+    recipe_id = create_new_recipe(recipe_json)
+    response_json = json.JSONEncoder().encode({"recipe_id": recipe_id})
 
     return response_json
 
