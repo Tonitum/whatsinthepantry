@@ -2,15 +2,16 @@
 
 """ REST API for interacting with the recipe database """
 
-from flask import Flask
-from flask import request
 import json
+from flask import Flask, Response
+from flask import request
 
+from backend.test.test_database import Recipes
 
-from backend.recipe import verify_recipe_json, create_new_recipe
 
 app = Flask(__name__)
 
+recipes = Recipes("db/recipes.db")
 
 @app.route("/health")
 def health():
@@ -19,46 +20,61 @@ def health():
 
 @app.route("/recipe/get/<recipe_id>", methods = ["GET"])
 def get_recipe(recipe_id):
-    # check that the recipe id exists
-    # if it does not, return an error
-    # if it does, pull it from the database
-    # return the json blob
-    response_data = {}
-    response_data['status'] = 200
-    response_data['id'] = recipe_id
-    blob = json.dumps(response_data)
-    return blob 
+    recipe = recipes.get_recipe(recipe_id)
+    status_code = 504
+
+    if len(recipe) > 0:
+        status_code = 200
+
+    blob = json.dumps(recipe)
+    response = Response(blob, status=status_code, mimetype="application/json")
+    return response
 
 
 @app.route("/recipe/create", methods = ["POST"])
 def create_recipe():
-    """Receive a JSON blob and use it to create a new recipe entry in the database"""
+    """Receive a JSON blob and use it to create a new recipe entry in the
+    database"""
     content_type = request.headers.get("Content-Type")
-    print(content_type)
     if content_type != "application/json":
-        # TODO: return an error code here
-        return json.JSONEncoder().encode({"ERROR": "Must receive JSON"})
+        return Response(
+                json.dumps({"ERROR": "Must receive JSON"}),
+                status=400,
+                mimetype="application/json") 
 
     recipe_json = request.json
-    if not verify_recipe_json(recipe_json):
-        # TODO: return an error code here
-        return json.JSONEncoder().encode({"ERROR": "JSON Doesn't contain the expected data"})
+    if not recipes.verify_recipe_json(recipe_json):
+        return Response(
+                json.dumps({"ERROR": "JSON Doesn't contain the expected data"}),
+                status=400,
+                mimetype="application/json") 
 
-    # TODO: use the provided JSON to create a recipe database entry
-    recipe_id = create_new_recipe(recipe_json)
-    response_json = json.JSONEncoder().encode({"recipe_id": recipe_id})
-
-    return response_json
+    recipe_id = recipes.create_new_recipe(recipe_json)
+    response_json = json.dumps({"id": recipe_id})
+    return Response(response_json, status=200, mimetype="application/json")
 
 
-@app.route("/recipe/delete")
+@app.route("/recipe/delete", methods = ["POST"])
 def delete_recipe():
-    return "Recipe!"
+    """Receive a recipe id and, delete it if it exists"""
+    content_type = request.headers.get("Content-Type")
+    if content_type != "application/json":
+        return Response(
+                json.dumps({"ERROR": "Must receive JSON"}),
+                status=400,
+                mimetype="application/json") 
+
+    recipe_json = request.json
+
+    if recipes.delete_recipe(recipe_json["id"]):
+        return Response(status=200)
+    return Response(status=504)
 
 
 @app.route("/recipe/update")
 def update_recipe():
     return "Recipe!"
+
 
 if __name__ == "__main__":
     app.run(port=5000)
