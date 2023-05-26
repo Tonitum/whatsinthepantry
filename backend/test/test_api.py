@@ -36,6 +36,12 @@ class CreateRecipeTest(unittest.TestCase):
         response = requests.request("GET", url=f"http://localhost:5000/recipe/get/{id}")
         self.assertEqual(response.status_code, 200)
 
+    def test_03_search_nominal(self):
+        search = {}
+        search["key"] = "ingredients"
+        search["term"] = "Spaghetti"
+
+
     def test_03_delete_nominal(self):
         """Test that a recipe can be deleted"""
         id = recipe_id

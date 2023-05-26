@@ -6,7 +6,7 @@ import json
 from flask import Flask, Response
 from flask import request
 
-from backend.test.test_database import Recipes
+from backend.recipe import Recipes
 
 
 app = Flask(__name__)
@@ -64,12 +64,35 @@ def delete_recipe():
                 status=400,
                 mimetype="application/json") 
 
-    recipe_json = request.json
+    recipe_json = request.json or {"id": ""}
 
     if recipes.delete_recipe(recipe_json["id"]):
         return Response(status=200)
     return Response(status=504)
 
+@app.route("/recipe/search", methods = ["POST"])
+def search_recipe():
+    """Receive a search request"""
+    content_type = request.headers.get("Content-Type")
+
+    #TODO: DRY this
+    if content_type != "application/json":
+        return Response(
+                json.dumps({"ERROR": "Must receive JSON"}),
+                status=400,
+                mimetype="application/json") 
+
+    search_json = request.json or {}
+
+    if search_json == {}:
+        return Response(
+                json.dumps({"ERROR": "Must receive JSON"}),
+                status=400,
+                mimetype="application/json") 
+
+    response_recipe = recipes.search_recipe(search_json)
+    response_json = json.dumps(response_recipe)
+    return Response(response_json, status=200, mimetype="application/json")
 
 @app.route("/recipe/update")
 def update_recipe():
