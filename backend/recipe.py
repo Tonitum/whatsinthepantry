@@ -56,11 +56,11 @@ class Recipes():
 
     def search_recipe(self, search: dict) -> list:
         """Find and return all rows that match a search key/term"""
-        recipes = [] 
+        recipes = []
         res = self.db.execute_db(f"SELECT * FROM recipes WHERE ? LIKE ?",
                             (search["term"], f"%{search['term']}%"))
         if len(res) == 0:
-            return [] 
+            return []
 
         for recipe in res:
             print(recipe)
@@ -68,7 +68,5 @@ class Recipes():
             print(recipe_dict)
             recipes.append(recipe_dict)
         return recipes
-
-
 
 
