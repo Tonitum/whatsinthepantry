@@ -21,7 +21,7 @@ class CreateRecipeTest(unittest.TestCase):
         recipe_dict["cuisine"] = "Italian"
 
         recipe_data = JSONEncoder().encode(recipe_dict)
-        response = requests.request("POST",url="http://localhost:5000/recipe/create",
+        response = requests.request("POST",url="http://0.0.0.0:5000/recipe/create",
                                 data=recipe_data,
                                 headers=headers_dict)
         self.assertEqual(response.status_code, 200)
@@ -33,7 +33,7 @@ class CreateRecipeTest(unittest.TestCase):
     def test_02_get_nominal(self):
         """Test nominal get case"""
         id = recipe_id
-        response = requests.request("GET", url=f"http://localhost:5000/recipe/get/{id}")
+        response = requests.request("GET", url=f"http://0.0.0.0:5000/recipe/get/{id}")
         self.assertEqual(response.status_code, 200)
 
     def test_03_search_nominal(self):
@@ -50,18 +50,18 @@ class CreateRecipeTest(unittest.TestCase):
         headers_dict["Content-Type"] = "application/json"
         recipe_dict["id"] = id
         recipe_data = JSONEncoder().encode(recipe_dict)
-        response = requests.request("POST",url="http://localhost:5000/recipe/delete",
+        response = requests.request("POST",url="http://0.0.0.0:5000/recipe/delete",
                                 data=recipe_data,
                                 headers=headers_dict)
         self.assertEqual(response.status_code, 200)
 
-        response = requests.request("GET", url=f"http://localhost:5000/recipe/get/{id}")
+        response = requests.request("GET", url=f"http://0.0.0.0:5000/recipe/get/{id}")
         self.assertEqual(response.status_code, 504)
 
     def test_04_get_none(self):
         """Test case where id is not in db"""
         id = 1234
-        response = requests.request("GET", url=f"http://localhost:5000/recipe/get/{id}")
+        response = requests.request("GET", url=f"http://0.0.0.0:5000/recipe/get/{id}")
         self.assertEqual(response.status_code, 504)
 
     def tearDown(self) -> None:
