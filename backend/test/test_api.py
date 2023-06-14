@@ -41,7 +41,6 @@ class CreateRecipeTest(unittest.TestCase):
         search["key"] = "ingredients"
         search["term"] = "Spaghetti"
 
-
     def test_03_delete_nominal(self):
         """Test that a recipe can be deleted"""
         id = recipe_id
