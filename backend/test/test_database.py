@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import os
+from typing import override
 import unittest
 import sqlite3
 
@@ -8,15 +9,19 @@ from backend.recipe import Recipes
 
 
 class CreateRecipeTest(unittest.TestCase):
+    recipes: Recipes | None = None
+
     @classmethod
+    @override
     def setUpClass(cls) -> None:
         os.mkdir("temp")
 
+    @override
     def setUp(self) -> None:
         self.recipes = Recipes("temp/test.db")
 
-    def _get_recipe(self) -> dict:
-        recipe_dict = {}
+    def _get_recipe(self) -> dict[str, str]:
+        recipe_dict: dict[str, str] = {}
         recipe_dict["name"] = "Spaghetti"
         recipe_dict["meal"] = "Dinner"
         recipe_dict["ingredients"] = "spaghetti,red sauce,ground beef, garlic"
